@@ -3,7 +3,7 @@ Simple service to run on Raspberry Pis and report data back to Home Assistant
 
 ### Run as a service
 ```
-cp home-assistant-pi.service /lib/systemd/system/
+sudo cp home-assistant-pi.service /lib/systemd/system/
 
 sudo chmod 644 /lib/systemd/system/home-assistant-pi.service
 
