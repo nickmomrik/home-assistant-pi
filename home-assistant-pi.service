@@ -1,6 +1,7 @@
 [Unit]
 Description=Home Assistant Pi
-After=multi-user.target
+Wants=network-online.target
+After=multi-user.target network.target network-online.target
 
 [Service]
 Type=simple
