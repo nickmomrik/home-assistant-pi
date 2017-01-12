@@ -1,5 +1,5 @@
 [Unit]
-Description=Hello World
+Description=Home Assistant Pi
 After=multi-user.target
 
 [Service]
