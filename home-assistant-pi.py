@@ -8,12 +8,16 @@ frequency = 60
 
 # Home Assistant
 import socket
-ha_ip             = '192.168.2.149'
-topic_prefix      = 'pis/' + socket.gethostname() + '/'
-ha_cpu_temp_topic = topic_prefix + 'cpu-temp'
-ha_cpu_use_topic  = topic_prefix + 'cpu-use'
-ha_ram_use_topic  = topic_prefix + 'ram-use'
-ha_uptime_topic   = topic_prefix + 'uptime'
+ha_ip                 = '192.168.2.149'
+topic_prefix          = 'pis/' + socket.gethostname() + '/'
+ha_cpu_temp_topic     = topic_prefix + 'cpu-temp'
+ha_cpu_use_topic      = topic_prefix + 'cpu-use'
+ha_ram_use_topic      = topic_prefix + 'ram-use'
+ha_uptime_topic       = topic_prefix + 'uptime'
+ha_last_seen_topic    = topic_prefix + 'last-seen'
+switch_prefix         = 'switch.' + socket.gethostname().replace( '-', '_' )
+ha_reboot_entity_id   = switch_prefix + '_reboot'
+ha_shutdown_entity_id = switch_prefix + '_shutdown'
 
 # END CONFIG
 ############
@@ -21,6 +25,10 @@ ha_uptime_topic   = topic_prefix + 'uptime'
 import time
 import os
 import psutil
+import subprocess
+import requests
+import json
+import datetime
 from datetime import timedelta
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
@@ -55,7 +63,41 @@ def get_uptime():
 	with open( '/proc/uptime', 'r' ) as f:
 		uptime_seconds = float( f.readline().split()[0] )
 
-		return str( timedelta( seconds = uptime_seconds ) )
+	return str( timedelta( seconds = uptime_seconds ) )
+
+# http://www.ridgesolutions.ie/index.php/2013/02/22/raspberry-pi-restart-shutdown-your-pi-from-python-code/
+def shutdown( restart = None ):
+	type = 'h'
+	if ( restart ):
+		type = 'r'
+
+	command = "/usr/bin/sudo /sbin/shutdown -" + type + " now"
+	process = subprocess.Popen( command.split(), stdout = subprocess.PIPE )
+	output = process.communicate()[0]
+	print output
+
+def reboot():
+	shutdown( True )
+
+def get_home_assistant_switch_state( entity_id, default_value ):
+	ret = default_value
+	try:
+		response = requests.get( url + entity_id, headers = headers )
+		if ( 200 == response.status_code ):
+			value = response.json()['state']
+			if ( value ):
+				ret = value
+	except requests.exceptions.RequestException as e:
+		print e
+
+	return ret
+
+def set_home_assistant_switch_off( entity_id ):
+	try:
+		data = json.dumps({'state': 'off'})
+		requests.post( url + entity_id, data, headers = headers )
+	except requests.exceptions.RequestException as e:
+		print e
 
 # Home Assistant
 url = 'http://' + ha_ip + ':8123/api/states/'
@@ -75,5 +117,13 @@ while True:
 		client.publish( ha_cpu_use_topic, psutil.cpu_percent() )
 		client.publish( ha_ram_use_topic, psutil.virtual_memory().percent )
 		client.publish( ha_uptime_topic, get_uptime() )
+		client.publish( ha_last_seen_topic, now )
+
+	if ( 'on' == get_home_assistant_switch_state( ha_reboot_entity_id, 'off' ) ):
+		set_home_assistant_switch_off( ha_reboot_entity_id )
+		reboot()
+	elif ( 'on' == get_home_assistant_switch_state( ha_shutdown_entity_id, 'off' ) ):
+		set_home_assistant_switch_off( ha_shutdown_entity_id )
+		shutdown()
 
 	time.sleep( 1 )
