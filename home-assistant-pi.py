@@ -25,17 +25,23 @@ from datetime import timedelta
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 
-last_update  = time.time() - frequency
+last_update = time.time() - frequency
 
-# Home Assistant
-url = 'http://' + ha_ip + ':8123/api/states/'
-with open( '/home/pi/home-assistant-pi/ha-password.txt', 'r' ) as f:
-	password = f.readline().strip()
-headers = {'x-ha-access': password,
-			'content-type': 'application/json'}
-client = mqtt.Client( "ha-client" )
-client.connect( ha_ip )
-client.loop_start()
+def mqtt_connect( ip ):
+	connected = False
+	i = 0
+
+	while not connected:
+		try:
+			client.connect( ip )
+			client.loop_start()
+			connected = True
+		except Exception as e:
+			if ( i < 10 ):
+				i = i + 1
+				time.sleep( 3 )
+			else:
+				raise
 
 def convert_c_to_f( celcius ):
 	return celcius * 1.8 + 32
@@ -51,6 +57,14 @@ def get_uptime():
 
 		return str( timedelta( seconds = uptime_seconds ) )
 
+# Home Assistant
+url = 'http://' + ha_ip + ':8123/api/states/'
+with open( '/home/pi/home-assistant-pi/ha-password.txt', 'r' ) as f:
+	password = f.readline().strip()
+headers = {'x-ha-access': password,
+			'content-type': 'application/json'}
+client = mqtt.Client( "ha-client" )
+mqtt_connect( ha_ip )
 
 while True:
 	now = time.time();
