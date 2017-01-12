@@ -1,7 +1,7 @@
 # home-assistant-pi
 Simple service to run on Raspberry Pis and report data back to Home Assistant
 
-### Run as a service
+### Run as a service [#](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/)
 ```
 sudo cp home-assistant-pi.service /lib/systemd/system/
 
@@ -30,5 +30,3 @@ sudo systemctl stop home-assistant-pi.service
 # Check service's log
 sudo journalctl -f -u home-assistant-pi.service
 ```
-
-Special thanks to [Diego's post](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/).
