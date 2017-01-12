@@ -15,3 +15,20 @@ sudo systemctl enable hello.service
 
 sudo systemctl start hello.service
 ```
+
+### Interact with the service
+```
+# Check status
+sudo systemctl status hello.service
+
+# Start service
+sudo systemctl start hello.service
+
+# Stop service
+sudo systemctl stop hello.service
+
+# Check service's log
+sudo journalctl -f -u hello.service
+```
+
+Special thanks to [Diego's post](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/).
