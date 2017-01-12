@@ -1,0 +1,11 @@
+[Unit]
+Description=Hello World
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /home/pi/home-assistant-pi/home-assistant-pi.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
