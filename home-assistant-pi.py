@@ -7,13 +7,13 @@
 frequency = 60
 
 # Home Assistant
-ha_ip                  = '192.168.2.149'
 import socket
-topic_prefix           = 'pis/' + socket.gethostname() + '/'
-ha_cpu_temp_topic      = topic_prefix + 'cpu-temp'
-ha_cpu_use_topic       = topic_prefix + 'cpu-use'
-ha_ram_use_topic       = topic_prefix + 'ram-use'
-ha_uptime_topic        = topic_prefix + 'uptime'
+ha_ip             = '192.168.2.149'
+topic_prefix      = 'pis/' + socket.gethostname() + '/'
+ha_cpu_temp_topic = topic_prefix + 'cpu-temp'
+ha_cpu_use_topic  = topic_prefix + 'cpu-use'
+ha_ram_use_topic  = topic_prefix + 'ram-use'
+ha_uptime_topic   = topic_prefix + 'uptime'
 
 # END CONFIG
 ############
