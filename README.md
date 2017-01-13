@@ -1,6 +1,8 @@
 # home-assistant-pi
 Simple service to run on Raspberry Pis and report data back to Home Assistant. Also provides switches so you can reboot or shutdown the Pi from within HA.
 
+![Home Assistant Pi](./group-home-assistant.png?raw=true "Home Assistant Pi")
+
 ## Installation
 
 * Install [psutil](https://pypi.python.org/pypi/psutil)
