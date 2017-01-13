@@ -56,6 +56,14 @@ sensor:
     state_topic: 'pis/HOSTNAME/last-seen'
     name: 'HOSTNAME Last Seen'
 
+switch:
+  platform: command_line
+  switches:
+  HOSTNAME_reboot:
+	command_on: "echo 'Reboot HOSTNAME'"
+  HOSTNAME_shutdown:
+	command_on: "echo 'Shutdown HOSTNAME'"
+
 group:
   pi_HOSTNAME:
     name: HOSTNAME
