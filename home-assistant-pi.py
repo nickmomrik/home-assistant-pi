@@ -79,22 +79,35 @@ def shutdown( restart = None ):
 def reboot():
 	shutdown( True )
 
-def get_home_assistant_switch_state( entity_id, default_value ):
-	ret = default_value
+def get_home_assistant_switch_state( entity_id ):
+	ret = None
 	try:
 		response = requests.get( url + entity_id, headers = headers )
 		if ( 200 == response.status_code ):
 			value = response.json()['state']
 			if ( value ):
-				ret = value
+				ret = response.json()
 	except requests.exceptions.RequestException as e:
 		print e
 
 	return ret
 
-def set_home_assistant_switch_off( entity_id ):
+def set_home_assistant_switch_off( entity_id, state ):
+	new_state = {
+		'state': 'off',
+		'attributes': {
+			'icon': '',
+			'friendly_name': ''
+		}
+	}
+	# Otherwise Home Assistant resets these values!
+	if ( state['attributes']['icon'] ):
+		new_state['attributes']['icon'] = state['attributes']['icon']
+	if ( state['attributes']['friendly_name'] ):
+		new_state['attributes']['friendly_name'] = state['attributes']['friendly_name']
+
 	try:
-		data = json.dumps({'state': 'off'})
+		data = json.dumps(new_state)
 		requests.post( url + entity_id, data, headers = headers )
 	except requests.exceptions.RequestException as e:
 		print e
@@ -119,11 +132,16 @@ while True:
 		client.publish( ha_uptime_topic, get_uptime() )
 		client.publish( ha_last_seen_topic, now )
 
-	if ( 'on' == get_home_assistant_switch_state( ha_reboot_entity_id, 'off' ) ):
-		set_home_assistant_switch_off( ha_reboot_entity_id )
+	switch = get_home_assistant_switch_state( ha_reboot_entity_id )
+	if ( 'on' ==  switch['state'] ):
+		set_home_assistant_switch_off( ha_reboot_entity_id, switch )
 		reboot()
-	elif ( 'on' == get_home_assistant_switch_state( ha_shutdown_entity_id, 'off' ) ):
-		set_home_assistant_switch_off( ha_shutdown_entity_id )
+		break
+
+	switch = get_home_assistant_switch_state( ha_shutdown_entity_id )
+	if ( 'on' == switch['state'] ):
+		set_home_assistant_switch_off( ha_shutdown_entity_id, switch )
 		shutdown()
+		break
 
 	time.sleep( 1 )
