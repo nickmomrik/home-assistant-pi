@@ -93,16 +93,14 @@ sudo systemctl start home-assistant-pi.service
 ```
 
 ### Interact with the service
-```
-# Check status
-sudo systemctl status home-assistant-pi.service
+Check status
+`sudo systemctl status home-assistant-pi.service`
 
-# Start service
-sudo systemctl start home-assistant-pi.service
+Start service
+`sudo systemctl start home-assistant-pi.service`
 
-# Stop service
-sudo systemctl stop home-assistant-pi.service
+Stop service
+`sudo systemctl stop home-assistant-pi.service`
 
-# Check service's log
-sudo journalctl -f -u home-assistant-pi.service
-```
+Check service's log
+`sudo journalctl -f -u home-assistant-pi.service`
