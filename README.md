@@ -24,12 +24,12 @@ homeassistant:
       friendly_name: CPU Use
     sensor.HOSTNAME_ram_use:
       icon: mdi:raspberrypi
-      friendly_name: RAM Use
+      friendly_name: chip
     sensor.HOSTNAME_uptime:
-      icon: mdi:clock
+      icon: mdi:timer
       friendly_name: Uptime
     sensor.HOSTNAME_last_seen:
-      icon: mdi:clock
+      icon: mdi:calendar-clock
       friendly_name: Last Seen
 	switch.HOSTNAME_reboot:
 	  icon: mdi:refresh
