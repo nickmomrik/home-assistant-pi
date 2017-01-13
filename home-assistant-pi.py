@@ -132,16 +132,16 @@ while True:
 		client.publish( ha_uptime_topic, get_uptime() )
 		client.publish( ha_last_seen_topic, str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
 
-	switch = get_home_assistant_switch_state( ha_reboot_entity_id )
-	if ( None != switch and'on' ==  switch['state'] ):
-		set_home_assistant_switch_off( ha_reboot_entity_id, switch )
-		reboot()
-		break
+		switch = get_home_assistant_switch_state( ha_reboot_entity_id )
+		if ( None != switch and'on' ==  switch['state'] ):
+			set_home_assistant_switch_off( ha_reboot_entity_id, switch )
+			reboot()
+			break
 
-	switch = get_home_assistant_switch_state( ha_shutdown_entity_id )
-	if ( None != switch and 'on' == switch['state'] ):
-		set_home_assistant_switch_off( ha_shutdown_entity_id, switch )
-		shutdown()
-		break
+		switch = get_home_assistant_switch_state( ha_shutdown_entity_id )
+		if ( None != switch and 'on' == switch['state'] ):
+			set_home_assistant_switch_off( ha_shutdown_entity_id, switch )
+			shutdown()
+			break
 
 	time.sleep( 1 )
