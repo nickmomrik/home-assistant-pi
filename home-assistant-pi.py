@@ -130,7 +130,7 @@ while True:
 		client.publish( ha_cpu_use_topic, psutil.cpu_percent() )
 		client.publish( ha_ram_use_topic, psutil.virtual_memory().percent )
 		client.publish( ha_uptime_topic, get_uptime() )
-		client.publish( ha_last_seen_topic, str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M:%S') ) )
+		client.publish( ha_last_seen_topic, str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
 
 	switch = get_home_assistant_switch_state( ha_reboot_entity_id )
 	if ( None != switch and'on' ==  switch['state'] ):
