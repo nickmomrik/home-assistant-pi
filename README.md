@@ -10,7 +10,7 @@ Simple service to run on Raspberry Pis and report data back to Home Assistant. A
 * Clone this repo to `/home/pi`
 * `cd home-assistant-pi`
 * `cp config-sample.json config.json`
-* Edit `config.json` to set all of the options
+* Edit `config.json` to set all of the options. Change `HOSTNAME` to whatever you want to use as a name and make sure your HA config also matches.
 * Configure Home Assistant. Here's an example of some `configuration.yaml` settings:
 ```
 homeassistant:
