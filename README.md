@@ -8,9 +8,10 @@ Simple service to run on Raspberry Pis and report data back to Home Assistant. A
 * Install [psutil](https://pypi.python.org/pypi/psutil)
 * Install [paho-mqtt](https://pypi.python.org/pypi/paho-mqtt)
 * Clone this repo to `/home/pi`
-* Create a file named `ha-password.txt` in the `home-assistant-temperature-monitor` directory
-* Configure the settings at the top of the `home-assistant-pi.py` file. If you change any of the topic or entity values, you'll need to adjust your Home Assistant config example below to reflect those differences.
-* Configure Home Assistant. Replace every instance of `HOSTNAME` below with the hostname set on your Pi. Here's an example of some `configuration.yaml` settings:
+* `cd home-assistant-pi`
+* `cp config-sample.json config.json`
+* Edit `config.json` to set all of the options
+* Configure Home Assistant. Here's an example of some `configuration.yaml` settings:
 ```
 homeassistant:
   # You should have a bunch of other

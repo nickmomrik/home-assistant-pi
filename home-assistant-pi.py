@@ -1,27 +1,5 @@
 #!/usr/bin/python
 
-########
-# CONFIG
-
-# How often to update Home Assistant (in seconds)
-frequency = 60
-
-# Home Assistant
-import socket
-ha_ip                 = '192.168.2.149'
-topic_prefix          = 'pis/' + socket.gethostname() + '/'
-ha_cpu_temp_topic     = topic_prefix + 'cpu-temp'
-ha_cpu_use_topic      = topic_prefix + 'cpu-use'
-ha_ram_use_topic      = topic_prefix + 'ram-use'
-ha_uptime_topic       = topic_prefix + 'uptime'
-ha_last_seen_topic    = topic_prefix + 'last-seen'
-switch_prefix         = 'switch.' + socket.gethostname().replace( '-', '_' )
-ha_reboot_entity_id   = switch_prefix + '_reboot'
-ha_shutdown_entity_id = switch_prefix + '_shutdown'
-
-# END CONFIG
-############
-
 import time
 import os
 import psutil
@@ -33,7 +11,10 @@ from datetime import timedelta
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 
-last_update = time.time() - frequency
+with open( "/home/pi/home-assistant-pi/config.json" ) as json_file:
+    j = json.load( json_file )
+print j
+last_update = time.time() - j['update_frequency']
 
 def mqtt_connect( ip ):
 	connected = False
@@ -113,34 +94,32 @@ def set_home_assistant_switch_off( entity_id, state ):
 		print e
 
 # Home Assistant
-url = 'http://' + ha_ip + ':8123/api/states/'
-with open( '/home/pi/home-assistant-pi/ha-password.txt', 'r' ) as f:
-	password = f.readline().strip()
-headers = {'x-ha-access': password,
+url = j['ha_url'] + '/api/states/'
+headers = {'x-ha-access': j['ha_password'],
 			'content-type': 'application/json'}
 client = mqtt.Client( "ha-client" )
-mqtt_connect( ha_ip )
+mqtt_connect( j['ha_ip'] )
 
 while True:
 	now = time.time();
-	if ( now > last_update + frequency ):
+	if ( now > last_update + j['update_frequency'] ):
 		last_update = now
 
-		client.publish( ha_cpu_temp_topic, get_cpu_temperature() )
-		client.publish( ha_cpu_use_topic, psutil.cpu_percent() )
-		client.publish( ha_ram_use_topic, psutil.virtual_memory().percent )
-		client.publish( ha_uptime_topic, get_uptime() )
-		client.publish( ha_last_seen_topic, str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
+		client.publish( j['ha_cpu_temp_topic'], get_cpu_temperature() )
+		client.publish( j['ha_cpu_use_topic'], psutil.cpu_percent() )
+		client.publish( j['ha_ram_use_topic'], psutil.virtual_memory().percent )
+		client.publish( j['ha_uptime_topic'], get_uptime() )
+		client.publish( j['ha_last_seen_topic'], str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
 
-		switch = get_home_assistant_switch_state( ha_reboot_entity_id )
+		switch = get_home_assistant_switch_state( j['ha_reboot_entity_id'] )
 		if ( None != switch and'on' ==  switch['state'] ):
-			set_home_assistant_switch_off( ha_reboot_entity_id, switch )
+			set_home_assistant_switch_off( j['ha_reboot_entity_id'], switch )
 			reboot()
 			break
 
-		switch = get_home_assistant_switch_state( ha_shutdown_entity_id )
+		switch = get_home_assistant_switch_state( j['ha_shutdown_entity_id'] )
 		if ( None != switch and 'on' == switch['state'] ):
-			set_home_assistant_switch_off( ha_shutdown_entity_id, switch )
+			set_home_assistant_switch_off( j['ha_shutdown_entity_id'], switch )
 			shutdown()
 			break
 
