@@ -1,6 +1,4 @@
 {
-	"update_frequency": 60,
-
 	"ha_password": "123456",
 	"ha_ip": "192.168.1.5",
 	"ha_url": "http://192.168.1.5:8123",
@@ -12,5 +10,7 @@
 	"ha_last_seen_topic": "pis/HOSTNAME/last-seen",
 
 	"ha_reboot_entity_id": "switch.HOSTNAME_reboot",
-	"ha_shutdown_entity_id": "switch.HOSTNAME_shutdown"
+	"ha_shutdown_entity_id": "switch.HOSTNAME_shutdown",
+
+	"update_frequency": 60
 }
