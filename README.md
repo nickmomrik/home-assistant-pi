@@ -68,17 +68,74 @@ switch:
 	command_on: "echo 'Shutdown HOSTNAME'"
 
 group:
-  pi_HOSTNAME:
+  pi_HOSTNAME_on:
     name: HOSTNAME
     control: hidden
     entities:
 	  - sensor.HOSTNAME_uptime
-	  - sensor.HOSTNAME_last_seen
 	  - switch.HOSTNAME_reboot
 	  - switch.HOSTNAME_shutdown
 	  - sensor.HOSTNAME_cpu_temperature
 	  - sensor.HOSTNAME_cpu_use
 	  - sensor.HOSTNAME_ram_use
+  pi_HOSTNAME_off:
+    name: HOSTNAME
+    entities:
+	  - sensor.HOSTNAME_last_seen
+
+automation:
+  - alias: 'Home Assistant Start'
+    trigger:
+      platform: event
+      event_type: homeassistant_start
+    action:
+      - service: group.set_visibility
+        entity_id: group.pi_HOSTNAME_on
+        data:
+          visible: False
+
+  - alias: 'HOSTNAME is on'
+    trigger:
+      platform: mqtt
+      topic: 'pis/HOSTNAME/last-seen'
+    condition:
+      - condition: template
+        value_template: '{{ states.group.pi_HOSTNAME_on.attributes.hidden }}'
+    action:
+      - service: group.set_visibility
+        entity_id: group.pi_HOSTNAME_on
+        data:
+          visible: True
+      - service: group.set_visibility
+        entity_id: group.pi_HOSTNAME_off
+        data:
+          visible: False
+
+  - alias: 'HOSTNAME not seen'
+    trigger:
+      platform: time
+      minutes: '/2'
+      seconds: 00
+    condition:
+      condition: and
+      conditions:
+        - condition: template
+          value_template: '{{ states.group.pi_HOSTNAME_off.attributes.hidden }}'
+        - condition: or
+          conditions:
+          - condition: template
+            value_template: '{{ "unknown" == states.sensor.HOSTNAME_last_seen.state }}'
+          - condition: template
+            value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 120 }}'
+    action:
+      - service: group.set_visibility
+        entity_id: group.pi_HOSTNAME_on
+        data:
+          visible: False
+      - service: group.set_visibility
+        entity_id: group.pi_HOSTNAME_off
+        data:
+          visible: True
 ```
 * You probably want to [run this program as a service ](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/), so I've provided some help here.
 ```
