@@ -88,7 +88,7 @@ def set_home_assistant_switch_off( entity_id, state ):
 		new_state['attributes']['friendly_name'] = state['attributes']['friendly_name']
 
 	try:
-		data = json.dumps(new_state)
+		data = json.dumps( new_state )
 		requests.post( url + entity_id, data, headers = headers )
 	except requests.exceptions.RequestException as e:
 		print e
@@ -112,7 +112,7 @@ while True:
 		client.publish( j['ha_last_seen_topic'], str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
 
 		switch = get_home_assistant_switch_state( j['ha_reboot_entity_id'] )
-		if ( None != switch and'on' ==  switch['state'] ):
+		if ( None != switch and 'on' == switch['state'] ):
 			set_home_assistant_switch_off( j['ha_reboot_entity_id'], switch )
 			reboot()
 			break
