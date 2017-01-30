@@ -17,27 +17,29 @@ homeassistant:
   # You should have a bunch of other
   # settings here in your config
   customize:
-    sensor.HOSTNAME_cpu_temperature:
+    - entity_id: sensor.HOSTNAME_cpu_temperature
       icon: mdi:thermometer
       friendly_name: CPU Temp
-    sensor.HOSTNAME_cpu_use:
+    - entity_id: sensor.HOSTNAME_cpu_use
       icon: mdi:raspberrypi
       friendly_name: CPU Use
-    sensor.HOSTNAME_ram_use:
+    - entity_id: sensor.HOSTNAME_ram_use
       icon: mdi:raspberrypi
       friendly_name: chip
-    sensor.HOSTNAME_uptime:
+    - entity_id: sensor.HOSTNAME_uptime
       icon: mdi:timer
       friendly_name: Uptime
-    sensor.HOSTNAME_last_seen:
+    - entity_id: sensor.HOSTNAME_last_seen
       icon: mdi:calendar-clock
       friendly_name: Last Seen
-	switch.HOSTNAME_reboot:
+	- entity_id: switch.HOSTNAME_reboot
 	  icon: mdi:refresh
 	  friendly_name: Reboot
-	switch.HOSTNAME_shutdown:
+	  assumed_state: false
+	- entity_id: switch.HOSTNAME_shutdown
 	  icon: mdi:close-network
 	  friendly_name: Shutdown
+	  assumed_state: false
 
 sensor:
   - platform: mqtt
