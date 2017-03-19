@@ -103,24 +103,29 @@ mqtt_connect( j['ha_ip'] )
 while True:
 	now = time.time();
 	if ( now > last_update + j['update_frequency'] ):
-		last_update = now
+		try:
+			last_update = now
 
-		client.publish( j['ha_cpu_temp_topic'], get_cpu_temperature() )
-		client.publish( j['ha_cpu_use_topic'], psutil.cpu_percent() )
-		client.publish( j['ha_ram_use_topic'], psutil.virtual_memory().percent )
-		client.publish( j['ha_uptime_topic'], get_uptime() )
-		client.publish( j['ha_last_seen_topic'], str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
+			client.publish( j['ha_cpu_temp_topic'], get_cpu_temperature() )
+			client.publish( j['ha_cpu_use_topic'], psutil.cpu_percent() )
+			client.publish( j['ha_ram_use_topic'], psutil.virtual_memory().percent )
+			client.publish( j['ha_uptime_topic'], get_uptime() )
+			client.publish( j['ha_last_seen_topic'], str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
 
-		switch = get_home_assistant_switch_state( j['ha_reboot_entity_id'] )
-		if ( None != switch and 'on' == switch['state'] ):
-			set_home_assistant_switch_off( j['ha_reboot_entity_id'], switch )
-			reboot()
-			break
+			switch = get_home_assistant_switch_state( j['ha_reboot_entity_id'] )
+			if ( None != switch and 'on' == switch['state'] ):
+				set_home_assistant_switch_off( j['ha_reboot_entity_id'], switch )
+				reboot()
+				break
 
-		switch = get_home_assistant_switch_state( j['ha_shutdown_entity_id'] )
-		if ( None != switch and 'on' == switch['state'] ):
-			set_home_assistant_switch_off( j['ha_shutdown_entity_id'], switch )
-			shutdown()
-			break
+			switch = get_home_assistant_switch_state( j['ha_shutdown_entity_id'] )
+			if ( None != switch and 'on' == switch['state'] ):
+				set_home_assistant_switch_off( j['ha_shutdown_entity_id'], switch )
+				shutdown()
+				break
+		except SysCallError as err:
+			print( 'SysCallError: {0}'.format( err ) )
+			# Wait 5 minutes before trying again
+			last_update = last_update + 300
 
 	time.sleep( 1 )
