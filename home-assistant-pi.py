@@ -7,9 +7,10 @@ import subprocess
 import requests
 import json
 import datetime
-from datetime import timedelta
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
+from datetime import timedelta
+from OpenSSL.SSL import SysCallError
 
 with open( "/home/pi/home-assistant-pi/config.json" ) as json_file:
     j = json.load( json_file )
