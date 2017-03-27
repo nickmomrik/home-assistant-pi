@@ -6,32 +6,22 @@ import psutil
 import subprocess
 import requests
 import json
-import datetime
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
-from datetime import timedelta
-from OpenSSL.SSL import SysCallError
+from datetime import datetime, timedelta
 
 with open( "/home/pi/home-assistant-pi/config.json" ) as json_file:
-    j = json.load( json_file )
-print j
-last_update = time.time() - j['update_frequency']
+    config = json.load( json_file )
 
-def mqtt_connect( ip ):
-	connected = False
-	i = 0
+last_update = 0
 
-	while not connected:
-		try:
-			client.connect( ip )
-			client.loop_start()
-			connected = True
-		except Exception as e:
-			if ( i < 10 ):
-				i = i + 1
-				time.sleep( 3 )
-			else:
-				raise
+# Home Assistant
+url = config['ha_url'] + '/api/states/'
+headers = {'x-ha-access': config['ha_password'],
+	'content-type': 'application/json'}
+mqtt.Client.connected_flag = False
+mqtt.Client.bad_connection_flag = False
+mqtt.Client.retry_count = 0
 
 def convert_c_to_f( celcius ):
 	return celcius * 1.8 + 32
@@ -94,39 +84,82 @@ def set_home_assistant_switch_off( entity_id, state ):
 	except requests.exceptions.RequestException as e:
 		print e
 
-# Home Assistant
-url = j['ha_url'] + '/api/states/'
-headers = {'x-ha-access': j['ha_password'],
-			'content-type': 'application/json'}
-client = mqtt.Client( "ha-client" )
-mqtt_connect( j['ha_ip'] )
+def on_disconnect( client, userdata, flags, rc = 0 ):
+	client.connected_flag = False
 
-while True:
-	now = time.time();
-	if ( now > last_update + j['update_frequency'] ):
-		try:
-			last_update = now
+def on_connect( client, userdata, flags, rc ):
+	if ( 0 == rc ):
+		client.connected_flag = True
+	else:
+		client.bad_connection_flag = True
 
-			client.publish( j['ha_cpu_temp_topic'], get_cpu_temperature() )
-			client.publish( j['ha_cpu_use_topic'], psutil.cpu_percent() )
-			client.publish( j['ha_ram_use_topic'], psutil.virtual_memory().percent )
-			client.publish( j['ha_uptime_topic'], get_uptime() )
-			client.publish( j['ha_last_seen_topic'], str( datetime.datetime.fromtimestamp( int( now ) ).strftime('%Y-%m-%d %H:%M') ) )
+def update_home_assistant_sensors():
+	global last_update
 
-			switch = get_home_assistant_switch_state( j['ha_reboot_entity_id'] )
+	client = mqtt.Client( 'ha-client' )
+	client.on_connect = on_connect
+	client.on_disconnect = on_disconnect
+
+	run_main = False
+	run_flag = True
+	while ( run_flag ):
+		while ( False == client.connected_flag and client.retry_count < 3 ):
+			count = 0
+			run_main = False
+			try:
+				client.connect( config['ha_ip'] )
+				break
+			except:
+				client.retry_count += 1
+				if ( client.retry_count > 5 ):
+					run_flag = False
+
+			time.sleep( 3 )
+
+		if ( run_main ):
+			run_flag = False
+
+			client.publish( config['ha_last_seen_topic'], str( datetime.now().strftime('%Y-%m-%d %H:%M') ) )
+			client.publish( config['ha_uptime_topic'], get_uptime() )
+			client.publish( config['ha_cpu_temp_topic'], get_cpu_temperature() )
+			client.publish( config['ha_cpu_use_topic'], psutil.cpu_percent() )
+			client.publish( config['ha_ram_use_topic'], psutil.virtual_memory().percent )
+
+			switch = get_home_assistant_switch_state( config['ha_reboot_entity_id'] )
 			if ( None != switch and 'on' == switch['state'] ):
-				set_home_assistant_switch_off( j['ha_reboot_entity_id'], switch )
+				set_home_assistant_switch_off( config['ha_reboot_entity_id'], switch )
 				reboot()
 				break
 
-			switch = get_home_assistant_switch_state( j['ha_shutdown_entity_id'] )
+			switch = get_home_assistant_switch_state( config['ha_shutdown_entity_id'] )
 			if ( None != switch and 'on' == switch['state'] ):
-				set_home_assistant_switch_off( j['ha_shutdown_entity_id'], switch )
+				set_home_assistant_switch_off( config['ha_shutdown_entity_id'], switch )
 				shutdown()
 				break
-		except SysCallError as err:
-			print( 'SysCallError: {0}'.format( err ) )
-			# Wait 5 minutes before trying again
-			last_update = last_update + 300
+
+			last_update = time.time()
+		else:
+			client.loop_start()
+	        while ( True ):
+				if ( client.connected_flag ):
+					client.retry_count = 0
+					run_main = True
+					break
+				elif ( count > 6 or client.bad_connection_flag ):
+					client.loop_stop()
+					client.retry_count += 1
+					if ( client.retry_count > 5 ):
+						run_flag = False
+						break
+				else:
+					time.sleep( 3 )
+					count += 1
+
+	client.disconnect()
+	client.loop_stop()
+
+while ( True ):
+	if ( time.time() > ( last_update + config['update_frequency'] ) ):
+		update_home_assistant_sensors()
 
 	time.sleep( 1 )
