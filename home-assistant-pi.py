@@ -128,13 +128,13 @@ def update_home_assistant_sensors():
 			client.publish( config['ha_ram_use_topic'], psutil.virtual_memory().percent )
 
 			switch = get_home_assistant_switch_state( config['ha_reboot_entity_id'] )
-			if ( None != switch and 'on' == switch['state'] ):
+			if ( switch is not None and 'on' == switch['state'] ):
 				set_home_assistant_switch_off( config['ha_reboot_entity_id'], switch )
 				reboot()
 				break
 
 			switch = get_home_assistant_switch_state( config['ha_shutdown_entity_id'] )
-			if ( None != switch and 'on' == switch['state'] ):
+			if ( switch is not None and 'on' == switch['state'] ):
 				set_home_assistant_switch_off( config['ha_shutdown_entity_id'], switch )
 				shutdown()
 				break
