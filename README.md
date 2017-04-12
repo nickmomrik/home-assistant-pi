@@ -100,9 +100,6 @@ automation:
     trigger:
       platform: mqtt
       topic: 'pis/HOSTNAME/last-seen'
-    condition:
-      - condition: template
-        value_template: '{{ states.group.pi_HOSTNAME_on.attributes.hidden }}'
     action:
       - service: group.set_visibility
         entity_id: group.pi_HOSTNAME_on
@@ -118,17 +115,13 @@ automation:
       platform: time
       minutes: '/2'
       seconds: 00
-    condition:
-      condition: and
+	condition:
+      condition: or
       conditions:
         - condition: template
-          value_template: '{{ states.group.pi_HOSTNAME_off.attributes.hidden }}'
-        - condition: or
-          conditions:
-          - condition: template
-            value_template: '{{ "unknown" == states.sensor.HOSTNAME_last_seen.state }}'
-          - condition: template
-            value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 120 }}'
+          value_template: '{{ "unknown" == states.sensor.HOSTNAME_last_seen.state }}'
+        - condition: template
+          value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 120 }}'
     action:
       - service: group.set_visibility
         entity_id: group.pi_HOSTNAME_on
