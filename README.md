@@ -88,8 +88,8 @@ group:
 automation:
   - alias: 'Home Assistant Start'
     trigger:
-      platform: event
-      event_type: homeassistant_start
+      platform: homeassistant
+      event: start
     action:
       - service: group.set_visibility
         entity_id: group.pi_HOSTNAME_on
@@ -113,7 +113,7 @@ automation:
   - alias: 'HOSTNAME not seen'
     trigger:
       platform: time
-      minutes: '/2'
+      minutes: '/1'
       seconds: 00
 	condition:
       condition: or
@@ -121,7 +121,7 @@ automation:
         - condition: template
           value_template: '{{ "unknown" == states.sensor.HOSTNAME_last_seen.state }}'
         - condition: template
-          value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 120 }}'
+          value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 180 }}'
     action:
       - service: group.set_visibility
         entity_id: group.pi_HOSTNAME_on
@@ -131,6 +131,20 @@ automation:
         entity_id: group.pi_HOSTNAME_off
         data:
           visible: True
+
+  - alias: 'HOSTNAME went away'
+    trigger:
+      platform: template
+      value_template: "{% if is_state_attr('group.pi_HOSTNAME_on', 'hidden', true) %}true{% endif %}"
+    condition:
+      condition: template
+      value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 180 }}'
+    action:
+      service: notify.ios_DEVICE_ID
+      data:
+        title: 'Pi Offline: - HOSTNAME'
+        message: 'Last seen: {{ states.sensor.HOSTNAME_last_seen.state }}'
+
 ```
 * You probably want to [run this program as a service ](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/), so I've provided some help here.
 ```
