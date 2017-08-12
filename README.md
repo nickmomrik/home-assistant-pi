@@ -24,8 +24,11 @@ homeassistant:
       icon: mdi:raspberrypi
       friendly_name: CPU Use
     - entity_id: sensor.HOSTNAME_ram_use
-      icon: mdi:raspberrypi
-      friendly_name: chip
+      icon: mdi:chip
+      friendly_name: RAM Use
+	- entity_id: sensor.HOSTNAME_disk_use
+	  icon: mdi:harddisk
+	  friendly_name: DISK Use
     - entity_id: sensor.HOSTNAME_uptime
       icon: mdi:timer
       friendly_name: Uptime
@@ -55,6 +58,10 @@ sensor:
     name: 'HOSTNAME RAM Use'
     unit_of_measurement: '%'
   - platform: mqtt
+    state_topic: 'pis/HOSTNAME/disk-use'
+    name: 'HOSTNAME DISK Use'
+    unit_of_measurement: '%'
+  - platform: mqtt
     state_topic: 'pis/HOSTNAME/uptime'
     name: 'HOSTNAME Uptime'
   - platform: mqtt
@@ -80,6 +87,7 @@ group:
 	  - sensor.HOSTNAME_cpu_temperature
 	  - sensor.HOSTNAME_cpu_use
 	  - sensor.HOSTNAME_ram_use
+	  - sensor.HOSTNAME_disk_use
   pi_HOSTNAME_off:
     name: HOSTNAME
     entities:

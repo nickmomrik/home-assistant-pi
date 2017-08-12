@@ -6,6 +6,7 @@
 	"ha_cpu_temp_topic": "pis/HOSTNAME/cpu-temp",
 	"ha_cpu_use_topic": "pis/HOSTNAME/cpu-use",
 	"ha_ram_use_topic": "pis/HOSTNAME/ram-use",
+	"ha_disk_use_topic": "pis/HOSTNAME/disk-use",
 	"ha_uptime_topic": "pis/HOSTNAME/uptime",
 	"ha_last_seen_topic": "pis/HOSTNAME/last-seen",
 

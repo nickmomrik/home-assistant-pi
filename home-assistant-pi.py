@@ -37,6 +37,11 @@ def get_uptime():
 
 	return str( timedelta( seconds = uptime_seconds ) ).split(".")[0]
 
+def get_disk_used_percent():
+	disk = psutil.disk_usage('/')
+
+	return float( disk.percent )
+
 # http://www.ridgesolutions.ie/index.php/2013/02/22/raspberry-pi-restart-shutdown-your-pi-from-python-code/
 def shutdown( restart = None ):
 	type = 'h'
@@ -126,6 +131,7 @@ def update_home_assistant_sensors():
 			client.publish( config['ha_cpu_temp_topic'], get_cpu_temperature() )
 			client.publish( config['ha_cpu_use_topic'], psutil.cpu_percent() )
 			client.publish( config['ha_ram_use_topic'], psutil.virtual_memory().percent )
+			client.publish( config['ha_disk_use_topic'], get_disk_used_percent() )
 
 			switch = get_home_assistant_switch_state( config['ha_reboot_entity_id'] )
 			if ( switch is not None and 'on' == switch['state'] ):
