@@ -68,6 +68,18 @@ sensor:
     state_topic: 'pis/HOSTNAME/last-seen'
     name: 'HOSTNAME Last Seen'
 
+binary_sensor:
+  - platform: template
+    sensors:
+	  pi_HOSTNAME_on:
+	    value_template: >-
+		  {%- if states( 'sensor.apple_last_seen' ) != 'unknown'
+		    and ( as_timestamp( now() ) - as_timestamp( states( 'sensor.apple_last_seen' ) ) ) <= 180 -%}
+		  True
+		  {%- else -%}
+		  False
+		  {%- endif %}
+
 switch:
   platform: command_line
   switches:
@@ -94,65 +106,51 @@ group:
 	  - sensor.HOSTNAME_last_seen
 
 automation:
-  - alias: 'Home Assistant Start'
-    trigger:
-      platform: homeassistant
-      event: start
-    action:
-      - service: group.set_visibility
-        entity_id: group.pi_HOSTNAME_on
-        data:
-          visible: False
-
-  - alias: 'HOSTNAME is on'
-    trigger:
-      platform: mqtt
-      topic: 'pis/HOSTNAME/last-seen'
-    action:
-      - service: group.set_visibility
-        entity_id: group.pi_HOSTNAME_on
-        data:
-          visible: True
-      - service: group.set_visibility
-        entity_id: group.pi_HOSTNAME_off
-        data:
-          visible: False
-
-  - alias: 'HOSTNAME not seen'
-    trigger:
-      platform: time
-      minutes: '/1'
-      seconds: 00
-	condition:
-      condition: or
-      conditions:
-        - condition: template
-          value_template: '{{ "unknown" == states.sensor.HOSTNAME_last_seen.state }}'
-        - condition: template
-          value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 180 }}'
-    action:
-      - service: group.set_visibility
-        entity_id: group.pi_HOSTNAME_on
-        data:
-          visible: False
-      - service: group.set_visibility
-        entity_id: group.pi_HOSTNAME_off
-        data:
-          visible: True
-
-  - alias: 'HOSTNAME went away'
-    trigger:
-      platform: template
-      value_template: "{% if is_state_attr('group.pi_HOSTNAME_on', 'hidden', true) %}true{% endif %}"
-    condition:
-      condition: template
-      value_template: '{{ ( as_timestamp( now() ) - as_timestamp( states.sensor.HOSTNAME_last_seen.state ) ) > 180 }}'
-    action:
-      service: notify.ios_DEVICE_ID
+- alias: 'Home Assistant Start'
+  trigger:
+    platform: homeassistant
+    event: start
+  action:
+    - service: group.set_visibility
+      entity_id:
+        - group.pi_HOSTNAME_on
       data:
-        title: 'Pi Offline: - HOSTNAME'
-        message: 'Last seen: {{ states.sensor.HOSTNAME_last_seen.state }}'
+        visible: False
 
+- alias: 'pi is on'
+  trigger:
+    platform: mqtt
+    topic: pis/+/last-seen
+  action:
+    - service: group.set_visibility
+      data_template:
+        entity_id: "group.pi_{{ trigger.topic.split('/')[1] }}_on"
+        visible: True
+    - service: group.set_visibility
+      data_template:
+        entity_id: "group.pi_{{ trigger.topic.split('/')[1] }}_off"
+        visible: False
+
+- alias: 'pi not seen'
+  trigger:
+    platform: state
+    entity_id:
+      - binary_sensor.pi_HOSTNAME_on
+    from: 'on'
+    to: 'off'
+  action:
+    - service: group.set_visibility
+      data_template:
+        entity_id: "group.pi_{{ trigger.entity_id.split('_')[2] }}_on"
+        visible: False
+    - service: group.set_visibility
+      data_template:
+        entity_id: "group.pi_{{ trigger.entity_id.split('_')[2] }}_off"
+        visible: True
+    - service: notify.ios_PHONENAME
+      data_template:
+        title: "Pi Offline"
+        message: "{{ trigger.entity_id.split('_')[2] }}"
 ```
 * You probably want to [run this program as a service ](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/), so I've provided some help here.
 ```
