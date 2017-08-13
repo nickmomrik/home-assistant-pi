@@ -141,16 +141,16 @@ automation:
   action:
     - service: group.set_visibility
       data_template:
-        entity_id: "group.pi_{{ trigger.entity_id.split('_')[2] }}_on"
+        entity_id: "group.pi_{{ trigger.entity_id | replace( 'binary_sensor.pi_', '' ) | replace( '_on', '' ) }}_on"
         visible: False
     - service: group.set_visibility
       data_template:
-        entity_id: "group.pi_{{ trigger.entity_id.split('_')[2] }}_off"
+        entity_id: "group.pi_{{ trigger.entity_id | replace( 'binary_sensor.pi_', '' ) | replace( '_on', '' ) }}_off"
         visible: True
     - service: notify.ios_PHONENAME
       data_template:
         title: "Pi Offline"
-        message: "{{ trigger.entity_id.split('_')[2] }}"
+        message: "{{ trigger.entity_id | replace( 'binary_sensor.pi_', '' ) | replace( '_on', '' ) }}"
 
 - alias: 'pi disk use'
   trigger:
@@ -162,7 +162,7 @@ automation:
     - service: notify.ios_PHONENAME
       data_template:
         title: "Pi Disk Use > 90%"
-        message: "{{ trigger.entity_id.split('_')[0] | replace('sensor.', '') }}"
+        message: "{{ trigger.entity_id | replace( 'sensor.', '' ) | replace( '_disk_use', '' ) }}"
 
 ```
 * You probably want to [run this program as a service ](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/), so I've provided some help here.
