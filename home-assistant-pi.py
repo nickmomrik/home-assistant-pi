@@ -103,14 +103,14 @@ def update_home_assistant_sensors():
 
 	global last_update
 
-	client = mqtt.Client( 'ha-client' )
+	client = mqtt.Client()
 	client.on_connect = on_connect
 	client.on_disconnect = on_disconnect
 
 	run_main = False
 	run_flag = True
 	while ( run_flag ):
-		while ( False == client.connected_flag and client.retry_count < 3 ):
+		while ( not client.connected_flag and client.retry_count < 3 ):
 			count = 0
 			run_main = False
 			try:
