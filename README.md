@@ -151,6 +151,19 @@ automation:
       data_template:
         title: "Pi Offline"
         message: "{{ trigger.entity_id.split('_')[2] }}"
+
+- alias: 'pi disk use'
+  trigger:
+    platform: numeric_state
+    entity_id:
+      - sensor.HOSTNAME_disk_use
+    above: 90
+  action:
+    - service: notify.ios_PHONENAME
+      data_template:
+        title: "Pi Disk Use > 90%"
+        message: "{{ trigger.entity_id.split('_')[0] | replace('sensor.', '') }}"
+
 ```
 * You probably want to [run this program as a service ](http://www.diegoacuna.me/how-to-run-a-script-as-a-service-in-raspberry-pi-raspbian-jessie/), so I've provided some help here.
 ```
