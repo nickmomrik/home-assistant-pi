@@ -16,30 +16,31 @@ Simple service to run on Raspberry Pis and report data back to Home Assistant. A
 homeassistant:
   # You should have a bunch of other
   # settings here in your config
-  customize:
-    - entity_id: sensor.HOSTNAME_cpu_temperature
-      icon: mdi:thermometer
-      friendly_name: CPU Temp
-    - entity_id: sensor.HOSTNAME_cpu_use
-      icon: mdi:raspberrypi
-      friendly_name: CPU Use
-    - entity_id: sensor.HOSTNAME_ram_use
-      icon: mdi:chip
-      friendly_name: RAM Use
-	- entity_id: sensor.HOSTNAME_disk_use
+
+  customize_glob::
+	"sensor.*cpu_temperature":
+	  icon: mdi:thermometer
+	  friendly_name: CPU Temp
+	"sensor.*cpu_use*":
+	  icon: mdi:raspberrypi
+	  friendly_name: CPU
+	"sensor.*ram_use*":
+	  icon: mdi:chip
+	  friendly_name: RAM
+	"sensor.*disk_use*":
 	  icon: mdi:harddisk
-	  friendly_name: DISK Use
-    - entity_id: sensor.HOSTNAME_uptime
-      icon: mdi:timer
-      friendly_name: Uptime
-    - entity_id: sensor.HOSTNAME_last_seen
-      icon: mdi:calendar-clock
-      friendly_name: Last Seen
-	- entity_id: switch.HOSTNAME_reboot
+	  friendly_name: Disk
+	"sensor.*_uptime":
+	  icon: mdi:timer
+	  friendly_name: Uptime
+	"sensor.*_last_seen":
+	  icon: mdi:calendar-clock
+	  friendly_name: Last Seen
+	"switch.*_reboot":
 	  icon: mdi:refresh
 	  friendly_name: Reboot
 	  assumed_state: false
-	- entity_id: switch.HOSTNAME_shutdown
+	"switch.*_shutdown":
 	  icon: mdi:close-network
 	  friendly_name: Shutdown
 	  assumed_state: false
@@ -74,7 +75,7 @@ binary_sensor:
 	  pi_HOSTNAME_on:
 	    value_template: >-
 		  {%- if states( 'sensor.apple_last_seen' ) != 'unknown'
-		    and ( as_timestamp( now() ) - as_timestamp( states( 'sensor.apple_last_seen' ) ) ) <= 180 -%}
+		    and ( as_timestamp( now() ) - as_timestamp( states( 'sensor.apple_last_seen' ) ) ) <= 240 -%}
 		  True
 		  {%- else -%}
 		  False
@@ -119,16 +120,19 @@ automation:
 
 - alias: 'pi is on'
   trigger:
-    platform: mqtt
-    topic: pis/+/last-seen
+    platform: state
+    entity_id:
+      - binary_sensor.pi_HOSTNAME_on
+    from: 'off'
+    to: 'on'
   action:
     - service: group.set_visibility
       data_template:
-        entity_id: "group.pi_{{ trigger.topic.split('/')[1] }}_on"
+        entity_id: "group.pi_{{ trigger.entity_id | replace( 'binary_sensor.pi_', '' ) }}"
         visible: True
     - service: group.set_visibility
       data_template:
-        entity_id: "group.pi_{{ trigger.topic.split('/')[1] }}_off"
+        entity_id: "group.pi_{{ trigger.entity_id | replace( 'binary_sensor.pi_', '' ) | replace( '_on', '' ) }}_off"
         visible: False
 
 - alias: 'pi not seen'
