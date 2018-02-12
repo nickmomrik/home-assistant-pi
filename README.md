@@ -44,6 +44,9 @@ homeassistant:
 	  icon: mdi:close-network
 	  friendly_name: Shutdown
 	  assumed_state: false
+	"sensor.*ipv4_address":
+  	  icon: mdi:server-network
+  	  friendly_name: IP
 
 sensor:
   - platform: mqtt
@@ -68,6 +71,9 @@ sensor:
   - platform: mqtt
     state_topic: 'pis/HOSTNAME/last-seen'
     name: 'HOSTNAME Last Seen'
+  - platform: mqtt
+    state_topic: 'pis/HOSTNAME/ipv4-address'
+    name: 'HOSTNAME IPv4 Address'
 
 binary_sensor:
   - platform: template
@@ -94,6 +100,7 @@ group:
     name: HOSTNAME
     control: hidden
     entities:
+	  - sensor.HOSTNAME_ipv4_address
 	  - sensor.HOSTNAME_uptime
 	  - switch.HOSTNAME_reboot
 	  - switch.HOSTNAME_shutdown

@@ -9,6 +9,7 @@
 	"ha_disk_use_topic": "pis/HOSTNAME/disk-use",
 	"ha_uptime_topic": "pis/HOSTNAME/uptime",
 	"ha_last_seen_topic": "pis/HOSTNAME/last-seen",
+	"ha_ipv4_address_topic": "pis/HOSTNAME/ipv4-address",
 
 	"ha_reboot_entity_id": "switch.HOSTNAME_reboot",
 	"ha_shutdown_entity_id": "switch.HOSTNAME_shutdown",

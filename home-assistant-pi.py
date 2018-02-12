@@ -6,6 +6,7 @@ import psutil
 import subprocess
 import requests
 import json
+import socket
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 from datetime import datetime, timedelta
@@ -41,6 +42,17 @@ def get_disk_used_percent() :
 	disk = psutil.disk_usage('/')
 
 	return float( disk.percent )
+
+def get_ip() :
+    s = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
+    try:
+        s.connect( ( 'google.com', 1 ) )
+        IP = s.getsockname()[0]
+    except:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
 
 # http://www.ridgesolutions.ie/index.php/2013/02/22/raspberry-pi-restart-shutdown-your-pi-from-python-code/
 def shutdown( restart = None ) :
@@ -132,6 +144,7 @@ def update_home_assistant_sensors() :
 			client.publish( config['ha_cpu_use_topic'], psutil.cpu_percent() )
 			client.publish( config['ha_ram_use_topic'], psutil.virtual_memory().percent )
 			client.publish( config['ha_disk_use_topic'], get_disk_used_percent() )
+			client.publish( config['ha_ipv4_address_topic'], get_ip() )
 
 			switch = get_home_assistant_switch_state( config['ha_reboot_entity_id'] )
 			if ( switch is not None and 'on' == switch['state'] ) :
