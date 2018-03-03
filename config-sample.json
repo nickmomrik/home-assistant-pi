@@ -1,18 +1,15 @@
 {
-	"ha_password": "123456",
-	"ha_ip": "192.168.1.5",
-	"ha_url": "http://192.168.1.5:8123",
-
-	"ha_cpu_temp_topic": "pis/HOSTNAME/cpu-temp",
-	"ha_cpu_use_topic": "pis/HOSTNAME/cpu-use",
-	"ha_ram_use_topic": "pis/HOSTNAME/ram-use",
-	"ha_disk_use_topic": "pis/HOSTNAME/disk-use",
-	"ha_uptime_topic": "pis/HOSTNAME/uptime",
-	"ha_last_seen_topic": "pis/HOSTNAME/last-seen",
-	"ha_ipv4_address_topic": "pis/HOSTNAME/ipv4-address",
-
-	"ha_reboot_entity_id": "switch.HOSTNAME_reboot",
-	"ha_shutdown_entity_id": "switch.HOSTNAME_shutdown",
-
-	"update_frequency": 60
+	"ip": "192.168.1.5",
+	"cpu_temp_topic": "pis/HOSTNAME/cpu-temp",
+	"cpu_use_topic": "pis/HOSTNAME/cpu-use",
+	"ram_use_topic": "pis/HOSTNAME/ram-use",
+	"disk_use_topic": "pis/HOSTNAME/disk-use",
+	"uptime_topic": "pis/HOSTNAME/uptime",
+	"last_seen_topic": "pis/HOSTNAME/last-seen",
+	"ipv4_address_topic": "pis/HOSTNAME/ipv4-address",
+	"reboot_topic": "pis/HOSTNAME/reboot",
+	"reboot_command_topic": "pis/HOSTNAME/reboot/set",
+	"shutdown_topic": "pis/HOSTNAME/shutdown",
+	"shutdown_command_topic": "pis/HOSTNAME/shutdown/set",
+	"loop_sleep": 30
 }

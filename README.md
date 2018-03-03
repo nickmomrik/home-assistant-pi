@@ -81,19 +81,27 @@ binary_sensor:
 	  pi_HOSTNAME_on:
 	    value_template: >-
 		  {%- if states( 'sensor.apple_last_seen' ) != 'unknown'
-		    and ( as_timestamp( now() ) - as_timestamp( states( 'sensor.apple_last_seen' ) ) ) <= 240 -%}
+		    and ( as_timestamp( now() ) - as_timestamp( states( 'sensor.apple_last_seen' ) ) ) <= 180 -%}
 		  True
 		  {%- else -%}
 		  False
 		  {%- endif %}
 
 switch:
-  platform: command_line
-  switches:
-  HOSTNAME_reboot:
-	command_on: "echo 'Reboot HOSTNAME'"
-  HOSTNAME_shutdown:
-	command_on: "echo 'Shutdown HOSTNAME'"
+  - platform: mqtt
+    name: "Apple Reboot"
+    state_topic: "pis/HOSTNAME/reboot"
+    command_topic: "pis/HOSTNAME/reboot/set"
+    qos: 1
+    optimistic: false
+    retain: false
+  - platform: mqtt
+    name: "Apple Shutdown"
+    state_topic: "pis/HOSTNAME/shutdown"
+    command_topic: "pis/HOSTNAME/shutdown/set"
+    qos: 1
+    optimistic: false
+    retain: false
 
 group:
   pi_HOSTNAME_on:
