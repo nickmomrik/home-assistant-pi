@@ -42,7 +42,7 @@ def get_disk_used_percent() :
 def get_ip() :
     s = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
     try:
-        s.connect( ( 'google.com', 1 ) )
+        s.connect( ( config['ip'], 1 ) )
         IP = s.getsockname()[0]
     except:
         IP = '127.0.0.1'
