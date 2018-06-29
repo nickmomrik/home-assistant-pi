@@ -5,7 +5,7 @@ After=multi-user.target network.target network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python /home/pi/home-assistant-pi/home-assistant-pi.py
+ExecStart=/usr/bin/python3 /home/pi/home-assistant-pi/home_assistant_pi.py
 Restart=on-abort
 
 [Install]
